@@ -20,10 +20,12 @@ setInterval(giveFreeCurrency, 300000);
 
 
 //Create users.json on boot.
-fs.writeFile("users.json", "[]", { flag: 'wx' }, function (err) {
-    if (err) throw err;
-    console.log("File users.json created!");
-});
+if (!fs.existsSync("users.json")) {
+    fs.writeFile("users.json", "[]", { flag: 'wx' }, function (err) {
+        if (err) throw err;
+        console.log("File users.json created!");
+    });
+}
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
@@ -65,10 +67,9 @@ client.on('message', msg => {
 
         case '!balance':
             console.log(`### ${msg.author.username} - BALANCE REQUEST ###`);
-            const user = getUser(msg.author.id);
-            msg.reply(
-                `Your balance is: **${user.balance}**`
-            );
+
+            getBalance(msg.author.id);
+
             break;
 
 
@@ -151,11 +152,24 @@ client.on('message', msg => {
 });
 
 
-function gambleAllIn(userId) {
+function getBalance(userId) {
     const user = getUser(userId);
     if (!user) {
         generalChannel.send(
             'You are not subscribed to the gambling service! \n type **!subscribe** to join in! <:kkool:451833139820757012>'
+        );
+        return;
+    }
+    generalChannel.send(
+        `<@${user.id}>, Your balance is: **${user.balance}**`
+    );
+}
+
+function gambleAllIn(userId) {
+    const user = getUser(userId);
+    if (!user) {
+        generalChannel.send(
+            `<@${user.id}>, You are not subscribed to the gambling service! \n type **!subscribe** to join in! <:kkool:451833139820757012>`
         );
         return;
     }
@@ -187,7 +201,7 @@ function gamble(userId, amount) {
     const user = getUser(userId);
     if (!user) {
         generalChannel.send(
-            'You are not subscribed to the gambling service! \n type **!subscribe** to join in! <:kkool:451833139820757012>'
+            `<@${user.id}>, You are not subscribed to the gambling service! \n type **!subscribe** to join in! <:kkool:451833139820757012>`
         );
         return;
     }
