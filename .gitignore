@@ -3,3 +3,4 @@ package-lock.json
 node_modules/
 google-credentials.json
 yarn.lock
+users.json
